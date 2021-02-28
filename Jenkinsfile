@@ -6,7 +6,7 @@ node {
     stage('compile-package') {
        // Get the Maven tool.
         mvnHome = tool name: 'maven-3', type: 'maven'
-        sh "${mvnHome}/bin/mvn package"
+        "${mvnHome}/bin/mvn package"
 
     }
 }
