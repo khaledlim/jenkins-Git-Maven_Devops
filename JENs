@@ -1,0 +1,26 @@
+node{
+   stage('SCM Checkout'){
+     git 'https://github.com/khaledlim/jenkins-Git-Maven_Devops'
+   } 
+   stage('SonarQube Analysis') {
+        def mvnHome =  tool name: 'maven-3', type: 'maven'
+        withSonarQubeEnv('sonar') { 
+          bat "${mvnHome}/bin/mvn sonar:sonar"
+        }
+    }
+    
+    stage("Quality Gate Statuc Check"){
+          timeout(time: 3, unit: 'MINUTES') {
+              def qg = waitForQualityGate()
+              if (qg.status != 'OK') {
+				    slackSend baseUrl: 'https://hooks.slack.com/services/', 
+	                channel: '#jenkins-pipeline-demo',
+	                color: 'danger',
+	                message: 'SonarQube Analysis Failed',
+	                tokenCredentialId: 'slack-jenkins',
+	                username: 'scampus'
+                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
+              }
+          }
+      }    
+}
